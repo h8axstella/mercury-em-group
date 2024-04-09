@@ -16,7 +16,8 @@ import mercury.mercury236 as mercury236
 
 
 def parse_cmd_line_args():
-    parser = argparse.ArgumentParser(description="Mercury energy meter data receiver")
+    parser = argparse.ArgumentParser(description="Mercury energy meter data receiver",
+                                     formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument("--proto", choices=["m206", "m236"], nargs='?', default="m206",
                         help='Mercury protocol (M206/M236)')
