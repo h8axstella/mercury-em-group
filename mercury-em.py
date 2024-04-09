@@ -31,6 +31,24 @@ def parse_cmd_line_args():
 
     parser.add_argument('--format', choices=["text", "json", "human"], nargs='?', default="json", help='Output format')
 
+    parser.add_argument('--array-number',
+                        choices=[0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x09, 0x0A, 0x0B, 0x0C, 0x0D], nargs='?',
+                        default=0x00,
+                        help=('Номер массива\n'
+                              '  0  - От сброса (по умолчанию)\n'
+                              '  1  - За текущий год\n'
+                              '  2  - За предыдущий год\n'
+                              '  3  - За месяц\n'
+                              '  4  - За текущие сутки\n'
+                              '  5  - За предыдущие сутки\n'
+                              '  6  - Пофазные значения учтенной активной энергии прямого направления\n'
+                              '  9  - На начало текущего года\n'
+                              '  10 - На начало предыдущего года\n'
+                              '  11 - На начало месяца\n'
+                              '  12 - На начало текущих суток\n'
+                              '  13 - На начало предыдущих суток\n'
+                              ))
+
     return parser.parse_args()
 
 
@@ -100,8 +118,10 @@ if __name__ == "__main__":
             mercury236.check_connect(sock, args.serial)
             mercury236.open_channel(sock, args.serial, args.user, args.passwd)
 
-            result['energy_phases_AR'] = mercury236.read_energy_sum_act_react(sock, args.serial)
-            result['energy_tarif_AR'] = mercury236.read_energy_tarif_act_react(sock, args.serial)
+            result[f'energy_phases_{args.array_number}'] = mercury236.read_energy_sum_act_react(sock, args.serial,
+                                                                                                param=args.array_number)
+            result[f'energy_tarif_{args.array_number}'] = mercury236.read_energy_tarif_act_react(sock, args.serial,
+                                                                                                 param=args.array_number)
             result['energy_phases'] = mercury236.read_energy_sum_by_phases(sock, args.serial)
             result['energy_tarif'] = mercury236.read_energy_tarif_by_phases(sock, args.serial)
 
