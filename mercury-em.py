@@ -33,7 +33,9 @@ def parse_cmd_line_args():
     parser.add_argument('--format', choices=["text", "json", "human"], nargs='?', default="json", help='Output format')
 
     parser.add_argument('--array-number',
-                        choices=[0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x09, 0x0A, 0x0B, 0x0C, 0x0D], nargs='?',
+                        choices=[0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x09, 0x0A, 0x0B, 0x0C, 0x0D],
+                        type=int,
+                        nargs='?',
                         default=0x00,
                         help=('Номер массива\n'
                               '  0  - От сброса (по умолчанию)\n'
