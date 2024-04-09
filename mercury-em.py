@@ -9,7 +9,6 @@
 #
 
 import argparse
-import sys
 import socket
 import json
 import mercury.mercury206 as mercury206
