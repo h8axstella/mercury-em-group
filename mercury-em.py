@@ -42,11 +42,11 @@ def print_output_text(arr, prefix=""):
             print(f"{prefix}.{key}={value}")
 
 
-def print_output(arr, format):
-    if format == "text":
+def print_output(arr, output_format):
+    if output_format == "text":
         print_output_text(arr)
 
-    elif format == "json":
+    elif output_format == "json":
         print(json.dumps(arr))
 
 
