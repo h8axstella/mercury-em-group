@@ -7,7 +7,7 @@
 #
 # 2019 <eugene@skorlov.name>
 #
-
+import os
 import argparse
 import socket
 import json
@@ -16,44 +16,34 @@ import mercury.mercury236 as mercury236
 
 
 def parse_cmd_line_args():
-    parser = argparse.ArgumentParser(description="Mercury energy meter data receiver",
-                                     formatter_class=argparse.RawTextHelpFormatter)
+    config_path = 'config.json'
+    config = {}
+    
+    
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+    
+  
+    parser = argparse.ArgumentParser(description="Mercury energy meter data receiver")
 
-    parser.add_argument("--proto", choices=["m206", "m236"], nargs='?', default="m206",
-                        help='Mercury protocol (M206/M236)')
-    parser.add_argument('--serial', type=str, nargs='?', default=0, help='Device serial number', required=True)
+  
+    parser.add_argument("--proto", default=config.get('proto', 'm206'), help='Mercury protocol (M206/M236)')
+    parser.add_argument("--serial", type=str, default=config.get('serial'), help='Device serial number')
+    parser.add_argument("--host", default=config.get('host', '0'), help='RS485-TCP/IP Converter IP.')
+    parser.add_argument("--port", type=int, default=config.get('port', 50), help='RS485-TCP/IP Converter port')
+    parser.add_argument("--user", default=config.get('user', 'user'), help='Device user (for m236 protocol)')
+    parser.add_argument("--pass", dest="passwd", default=config.get('pass', ''), help='Device password (for m236 protocol)')
+    parser.add_argument("--format", default=config.get('format', 'json'), help='Output format')
+    parser.add_argument("--array-number", type=int, default=config.get('array_number', 0x00), help='Array number')
 
-    parser.add_argument('--host', type=str, nargs='?', default=0, help='RS485-TCP/IP Convertor IP.')
-    parser.add_argument('--port', type=int, nargs='?', default="50", help='RS485-TCP/IP Convertor (default: 50)')
+    args = parser.parse_args()
 
-    parser.add_argument('--user', choices=["user", "admin"], default="user", nargs='?',
-                        help='Device user (for m236 proto)')
-    parser.add_argument('--pass', dest="passwd", type=str, nargs='?', help='Device password (for m236 proto)')
+    
+    if not args.serial:
+        raise ValueError("The --serial argument is required but not provided in command line or config.json")
 
-    parser.add_argument('--format', choices=["text", "json", "human"], nargs='?', default="json", help='Output format')
-
-    parser.add_argument('--array-number',
-                        choices=[0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x09, 0x0A, 0x0B, 0x0C, 0x0D],
-                        type=int,
-                        nargs='?',
-                        default=0x0B,
-                        help=('Номер массива\n'
-                              '  0  - От сброса (по умолчанию)\n'
-                              '  1  - За текущий год\n'
-                              '  2  - За предыдущий год\n'
-                              '  3  - За месяц\n'
-                              '  4  - За текущие сутки\n'
-                              '  5  - За предыдущие сутки\n'
-                              '  6  - Пофазные значения учтенной активной энергии прямого направления\n'
-                              '  9  - На начало текущего года\n'
-                              '  10 - На начало предыдущего года\n'
-                              '  11 - На начало месяца\n'
-                              '  12 - На начало текущих суток\n'
-                              '  13 - На начало предыдущих суток\n'
-                              ))
-
-    return parser.parse_args()
-
+    return args
 
 def print_output_text(arr, prefix=""):
     for key, value in arr.items():
@@ -128,3 +118,5 @@ if __name__ == "__main__":
             print(f"Ошибка: {e}")
         finally:
             sock.close()  
+    with open('results.json', 'w') as f:
+        json.dump(result, f, ensure_ascii=False, indent=4)
